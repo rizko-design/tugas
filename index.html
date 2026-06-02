@@ -1,0 +1,320 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Neuroevolution Drone Simulator - Kecerdasan Buatan Mandiri</title>
+  <meta name="description" content="Simulator neuroevolusi interaktif dalam HTML5/CSS3/JS murni menggunakan jaringan saraf tiruan (ANN) dan algoritma genetika.">
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+
+  <!-- Header -->
+  <header>
+    <div class="brand">
+      <div class="brand-logo">
+        <svg viewBox="0 0 24 24">
+          <path d="M21 16v-2l-8-5V3.5c0-.83-.67-1.5-1.5-1.5S10 2.67 10 3.5V9l-8 5v2l8-2.5V19l-2 1.5V22l3.5-1 3.5 1v-1.5L14 19v-5.5l8 2.5z"/>
+        </svg>
+      </div>
+      <div>
+        <h1 class="brand-title">NEUROFLIGHT</h1>
+        <p style="font-size: 0.65rem; color: var(--text-muted); font-family: var(--font-mono); letter-spacing: 0.5px;">NEUROEVOLUTION ENGINE v1.2</p>
+      </div>
+      <span class="brand-badge">HTML/CSS/JS Murni</span>
+    </div>
+    <div class="system-status">
+      <div class="status-item">
+        <span class="status-dot"></span>
+        <span>ENGINE RUNNING</span>
+      </div>
+      <div class="status-item" style="border-left: 1px solid var(--panel-border); padding-left: 1rem;">
+        <span style="color: var(--text-muted)">FPS:</span>
+        <span id="fpsCounter" style="color: var(--neon-cyan)">60</span>
+      </div>
+    </div>
+  </header>
+
+  <!-- App Main Container -->
+  <div class="app-container">
+
+    <!-- Left Panel: Controls -->
+    <aside class="glass-panel left-panel">
+      <div class="panel-header">
+        <span class="panel-title">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 20h9M16.5 3.5a2.121 2.121 0 0 1 3 3L7 19l-4 1 1-4L16.5 3.5z"/></svg>
+          Kontrol & Parameter
+        </span>
+      </div>
+      <div class="panel-body">
+        
+        <!-- Simulation Settings -->
+        <div class="control-section">
+          <span class="section-label">Simulasi</span>
+          
+          <div class="control-group">
+            <div class="control-header">
+              <span>Kecepatan</span>
+              <span class="control-value" id="speedVal">1x</span>
+            </div>
+            <input type="range" id="simSpeed" min="1" max="5" value="1" step="1">
+          </div>
+
+          <div class="control-group">
+            <label for="agentType" class="control-header">Tipe Agen</label>
+            <select id="agentType">
+              <option value="drone">Drone Quadcopter</option>
+              <option value="spaceship">Spaceship Plasma</option>
+              <option value="car">Mobil Balap</option>
+              <option value="ant">Semut Pekerja</option>
+            </select>
+          </div>
+        </div>
+
+        <!-- Genetic Algorithm Parameters -->
+        <div class="control-section">
+          <span class="section-label">Algoritma Genetika</span>
+          
+          <div class="control-group">
+            <div class="control-header">
+              <span>Ukuran Populasi</span>
+              <span class="control-value" id="popSizeVal">100</span>
+            </div>
+            <input type="range" id="popSize" min="20" max="250" value="100" step="10">
+          </div>
+
+          <div class="control-group">
+            <div class="control-header">
+              <span>Tingkat Mutasi</span>
+              <span class="control-value" id="mutationVal">5%</span>
+            </div>
+            <input type="range" id="mutationRate" min="1" max="30" value="5" step="1">
+          </div>
+
+          <div class="control-group">
+            <div class="control-header">
+              <span>Elitisme</span>
+              <span class="control-value" id="elitismVal">10%</span>
+            </div>
+            <input type="range" id="elitism" min="5" max="30" value="10" step="5">
+          </div>
+        </div>
+
+        <!-- Neural Network Config -->
+        <div class="control-section">
+          <span class="section-label">Jaringan Saraf</span>
+          
+          <div class="control-group">
+            <div class="control-header">
+              <span>Neuron Hidden Layer</span>
+              <span class="control-value" id="hiddenVal">8</span>
+            </div>
+            <input type="range" id="hiddenNeurons" min="3" max="16" value="8" step="1">
+          </div>
+        </div>
+
+        <!-- Preset Levels -->
+        <div class="control-section">
+          <span class="section-label">Rintangan & Peta Preset</span>
+          <select id="mapPreset">
+            <option value="empty">Kanvas Kosong</option>
+            <option value="gauntlet">Koridor Gauntlet (Statis)</option>
+            <option value="maze">Labirin Pencarian Path (Statis)</option>
+            <option value="minefield">Medan Ranjau Orbit (Dinamis)</option>
+            <option value="gauntletDynamic">Gerbang Geser Raksasa (Dinamis)</option>
+          </select>
+        </div>
+
+        <!-- Execution Actions -->
+        <div class="control-section" style="margin-top: auto;">
+          <div class="button-grid">
+            <button class="btn btn-primary" id="btnPlayPause">
+              <svg viewBox="0 0 24 24" width="16" height="16" fill="currentColor"><path d="M6 19h4V5H6v14zm8-14v14h4V5h-4z"/></svg>
+              <span>Pause</span>
+            </button>
+            <button class="btn" id="btnNextGen">
+              <svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2"><path d="M5 4l10 8-10 8V4zM19 5v14"/></svg>
+              <span>Skip Gen</span>
+            </button>
+          </div>
+          <div class="button-grid" style="margin-top: 0.5rem;">
+            <button class="btn btn-accent" id="btnClearObstacles">
+              <svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2"><path d="M19 7l-.867 12.142A2 2 0 0 1 16.138 21H7.862a2 2 0 0 1-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 0 0-1-1h-4a1 1 0 0 0-1 1v3M4 7h16"/></svg>
+              <span>Hapus Inti</span>
+            </button>
+            <button class="btn btn-green" id="btnRestart">
+              <svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2"><path d="M23 4v6h-6M1 20v-6h6M3.51 9a9 9 0 0 1 14.85-3.36L23 10M1 14l4.64 4.36A9 9 0 0 0 20.49 15"/></svg>
+              <span>Ulang Awal</span>
+            </button>
+          </div>
+        </div>
+
+      </div>
+    </aside>
+
+    <!-- Center Panel: Canvas & Stats Dashboard -->
+    <main class="center-panel">
+      
+      <!-- Stats Dashboard Row -->
+      <div class="dashboard-stats">
+        <div class="stat-card">
+          <span class="stat-label">Generasi</span>
+          <span class="stat-value neon-cyan" id="statGen">1</span>
+        </div>
+        <div class="stat-card">
+          <span class="stat-label">Populasi Hidup</span>
+          <span class="stat-value" id="statAlive">100 / 100</span>
+        </div>
+        <div class="stat-card">
+          <span class="stat-label">Sukses Target</span>
+          <span class="stat-value neon-green" id="statSuccess">0%</span>
+        </div>
+        <div class="stat-card">
+          <span class="stat-label">Fitness Terbaik</span>
+          <span class="stat-value neon-purple" id="statBestFitness">0.0</span>
+        </div>
+        <div class="stat-card">
+          <span class="stat-label">Rata-Rata Fitness</span>
+          <span class="stat-value" id="statAvgFitness">0.0</span>
+        </div>
+      </div>
+
+      <!-- Main Canvas Container -->
+      <div class="canvas-container" id="canvasContainer">
+        
+        <!-- Canvas Tool Overlays (Left) -->
+        <div class="canvas-overlay">
+          <button class="btn btn-square btn-active" id="toolDrawWall" title="Gambar Dinding Statis">
+            <svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="18" height="18" rx="2" ry="2"/></svg>
+          </button>
+          <button class="btn btn-square" id="toolSpawnMine" title="Pasang Ranjau Dinamis">
+            <svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><path d="M12 2v20M2 12h20"/></svg>
+          </button>
+        </div>
+
+        <!-- Canvas Tool Overlays (Right) -->
+        <div class="canvas-overlay-right">
+          <span class="overlay-tooltip">Klik & seret di kanvas untuk menggambar rintangan. Seret Target (Merah) atau Start (Hijau)</span>
+        </div>
+
+        <!-- Canvas -->
+        <canvas id="simulationCanvas"></canvas>
+
+        <!-- Canvas Legend -->
+        <div class="canvas-legend">
+          <div class="legend-item">
+            <div class="legend-color color-agent-best"></div>
+            <span>Terbaik</span>
+          </div>
+          <div class="legend-item">
+            <div class="legend-color color-agent-normal"></div>
+            <span>Agen Aktif</span>
+          </div>
+          <div class="legend-item">
+            <div class="legend-color color-target"></div>
+            <span>Target</span>
+          </div>
+          <div class="legend-item">
+            <div class="legend-color color-obstacle-static"></div>
+            <span>Dinding</span>
+          </div>
+          <div class="legend-item">
+            <div class="legend-color color-obstacle-dynamic"></div>
+            <span>Ranjau Bergerak</span>
+          </div>
+        </div>
+
+      </div>
+    </main>
+
+    <!-- Right Panel: Visualizations -->
+    <aside class="right-panel">
+      
+      <!-- Neural Network Visualizer -->
+      <section class="glass-panel nn-card">
+        <div class="panel-header">
+          <span class="panel-title">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="18" cy="5" r="3"/><circle cx="6" cy="12" r="3"/><circle cx="18" cy="19" r="3"/><path d="M9 12h6M6 12L18 5M6 12l12 7"/></svg>
+            Jaringan Saraf Terunggul
+          </span>
+          <span class="brand-badge" id="bestAgentId" style="font-family: var(--font-mono); font-size: 0.65rem;">ID: None</span>
+        </div>
+        <div class="panel-body" style="padding: 0.75rem;">
+          <div class="nn-container">
+            <canvas id="nnCanvas"></canvas>
+          </div>
+        </div>
+      </section>
+
+      <!-- Evolution Chart -->
+      <section class="glass-panel chart-card">
+        <div class="panel-header">
+          <span class="panel-title">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 3v18h18"/><path d="M18.7 8l-5.1 5.2-2.8-2.7L7 14.3"/></svg>
+            Tren Kemajuan Evolusi
+          </span>
+        </div>
+        <div class="panel-body" style="padding: 0.75rem;">
+          <div class="chart-container" id="chartContainer">
+            <canvas id="chartCanvas"></canvas>
+            <div class="chart-tooltip" id="chartTooltip"></div>
+          </div>
+        </div>
+      </section>
+
+    </aside>
+
+  </div>
+
+  <!-- Welcome / Instruction Modal -->
+  <div class="modal-overlay" id="welcomeModal">
+    <div class="modal-content">
+      <h2 class="modal-title">
+        <svg viewBox="0 0 24 24" width="24" height="24" fill="none" stroke="currentColor" stroke-width="2.5" style="color: var(--neon-cyan);"><path d="M12 2L2 7l10 5 10-5-10-5zM2 17l10 5 10-5M2 12l10 5 10-5"/></svg>
+        Simulator Neuroevolusi
+      </h2>
+      <p class="modal-desc">
+        Selamat datang di <strong>Neuroflight</strong>! Ini adalah laboratorium kecerdasan buatan interaktif. Di sini, populasi agen belajar sendiri cara bernavigasi melewati rintangan untuk mencapai target menggunakan <strong>Jaringan Saraf Tiruan</strong> dan <strong>Algoritma Genetika</strong> tanpa pemrograman manual.
+      </p>
+      
+      <div class="modal-steps">
+        <div class="modal-step">
+          <div class="step-number">1</div>
+          <div class="step-text">
+            <h4>Belajar Mandiri (Evolusi)</h4>
+            <p>Setiap agen dibekali radar sensor dan jaringan saraf. Agen yang menempuh jarak terjauh atau mencapai target memiliki peluang besar mewariskan otaknya ke generasi berikutnya.</p>
+          </div>
+        </div>
+        
+        <div class="modal-step">
+          <div class="step-number">2</div>
+          <div class="step-text">
+            <h4>Gambar Rintangan Dinamis</h4>
+            <p>Gunakan mouse/touch untuk menggambar dinding rintangan atau meletakkan ranjau bergerak di kanvas kapan saja. Seret pin start dan target untuk menguji adaptasi mereka secara langsung!</p>
+          </div>
+        </div>
+
+        <div class="modal-step">
+          <div class="step-number">3</div>
+          <div class="step-text">
+            <h4>Pantau Otak & Statistik Real-Time</h4>
+            <p>Diagram di sebelah kanan menunjukkan saraf aktif milik agen terbaik secara real-time. Grafik di bawahnya melacak peningkatan kebugaran populasi dari generasi ke generasi.</p>
+          </div>
+        </div>
+      </div>
+
+      <button class="btn btn-primary modal-btn" id="btnCloseWelcome">MULAI SIMULASI</button>
+    </div>
+  </div>
+
+  <!-- Load Modules -->
+  <script src="js/nn.js"></script>
+  <script src="js/ga.js"></script>
+  <script src="js/agent.js"></script>
+  <script src="js/chart.js"></script>
+  <script src="js/visualizer.js"></script>
+  <script src="js/simulator.js"></script>
+  <script src="js/main.js"></script>
+
+</body>
+</html>
